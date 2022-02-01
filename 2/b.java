@@ -1,28 +1,32 @@
+import java.io.*;
+import java.util.Base64;
 import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.NoSuchPaddingException;
+
+import java.security.*;
 
 public class b {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IOException {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("BlowFish");
+        keyGenerator.init(128);
+        Key secretKey = keyGenerator.generateKey();
+        Cipher cipherOut = Cipher.getInstance("BlowFish/CFB/NoPadding");
+        cipherOut.init(Cipher.ENCRYPT_MODE, secretKey);
 
-        KeyGenerator keygenerator = KeyGenerator.getInstance("Blowfish");
-
-        SecretKey secretkey = keygenerator.generateKey();
-
-        Cipher cipher = Cipher.getInstance("Blowfish");
-
-        cipher.init(Cipher.ENCRYPT_MODE, secretkey);
-
-        String inputText = "meh";
-
-        byte[] encrypted = cipher.doFinal(inputText.getBytes());
-
-        cipher.init(Cipher.DECRYPT_MODE, secretkey);
-
-        byte[] decrypted = cipher.doFinal(encrypted);
-        System.out.println("Encrypted Text: " + encrypted);
-        System.out.println("Decrypted Text: " + decrypted);
-
-        System.exit(0);
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte iv[] = cipherOut.getIV();
+        if (iv != null)
+            System.out.println(encoder.encodeToString(iv));
+        FileInputStream fin = new FileInputStream("input.txt");
+        FileOutputStream fout = new FileOutputStream("output.txt");
+        CipherOutputStream cout = new CipherOutputStream(fout, cipherOut);
+        int input;
+        while ((input = fin.read()) != -1) {
+            cout.write(input);
+        }
+        fin.close();
+        cout.close();
     }
 }
