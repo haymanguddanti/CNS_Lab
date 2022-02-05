@@ -4,7 +4,9 @@ class a
 
 {
 
+public static StringBuffer encrypt(String text, int s)
 
+public static StringBuffer encrypt(String text, int s)
 
 	{
 
